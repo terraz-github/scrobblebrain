@@ -7,482 +7,391 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0e0c0a;
-    --surface: #1a1714;
-    --surface2: #242019;
-    --border: #3a342c;
-    --text: #f0ebe3;
-    --muted: #7a6f62;
-    --accent: #e8a44a;
-    --accent2: #c96b2f;
-    --green: #6ab87a;
-    --red: #e05555;
-    --radius: 12px;
-  }
+:root {
+  --bg: #0e0c0a;
+  --surface: #1a1714;
+  --surface2: #242019;
+  --border: #3a342c;
+  --text: #f0ebe3;
+  --muted: #7a6f62;
+  --accent: #e8a44a;
+  --green: #6ab87a;
+  --red: #e05555;
+  --r: 12px;
+}
 
-  body {
-    font-family: 'Syne', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem 4rem;
-  }
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+}
 
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
-  }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
 
-  * { position: relative; z-index: 1; }
+* { position: relative; z-index: 1; }
 
-  header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
+header { text-align: center; margin-bottom: 2.5rem; }
 
-  .logo {
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: var(--accent);
-  }
+.logo {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--accent);
+}
+.logo span { color: var(--text); }
 
-  .logo span { color: var(--text); }
+.tagline {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-  .tagline {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 0.4rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
+#setup { width: 100%; max-width: 480px; }
 
-  /* Setup panel */
-  #setup {
-    width: 100%;
-    max-width: 480px;
-  }
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.75rem;
+}
 
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-  }
+.field { margin-bottom: 1.25rem; }
 
-  .field {
-    margin-bottom: 1.25rem;
-  }
+label {
+  display: block;
+  font-size: 0.75rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
 
-  label {
-    display: block;
-    font-size: 0.75rem;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-  }
+input[type="text"], input[type="number"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
 
-  input[type="text"], input[type="number"] {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    padding: 0.65rem 0.9rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+.settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-  input:focus { border-color: var(--accent); }
-  input::placeholder { color: var(--muted); }
+.hint {
+  font-size: 0.7rem;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
 
-  .settings-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
+.btn {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: #1a1200;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 0.5rem;
+}
+.btn:hover { background: #f0b45a; }
+.btn:active { transform: scale(0.98); }
 
-  .hint {
-    font-size: 0.7rem;
-    font-family: 'DM Mono', monospace;
-    color: var(--muted);
-    margin-top: 0.35rem;
-  }
+.error-msg {
+  background: rgba(224,85,85,0.12);
+  border: 1px solid rgba(224,85,85,0.3);
+  color: var(--red);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: none;
+}
 
-  .btn {
-    display: block;
-    width: 100%;
-    background: var(--accent);
-    color: #1a1200;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-    border: none;
-    border-radius: 8px;
-    padding: 0.8rem;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-    margin-top: 0.5rem;
-  }
+/* Loading */
+#loading {
+  display: none;
+  width: 100%;
+  max-width: 480px;
+}
 
-  .btn:hover { background: #f0b45a; }
-  .btn:active { transform: scale(0.98); }
+.loading-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.75rem;
+}
 
-  .btn.ghost {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    margin-top: 0.75rem;
-  }
+.loading-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
 
-  .btn.ghost:hover { color: var(--text); border-color: var(--muted); background: transparent; }
+.progress-bar-wrap {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
 
-  .error-msg {
-    background: rgba(224, 85, 85, 0.12);
-    border: 1px solid rgba(224, 85, 85, 0.3);
-    color: var(--red);
-    border-radius: 8px;
-    padding: 0.65rem 0.9rem;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    display: none;
-  }
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.35s ease;
+}
 
-  /* Loading */
-  #loading {
-    display: none;
-    text-align: center;
-    padding: 3rem 0;
-  }
+.loading-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+  min-height: 1.2em;
+}
 
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 1rem;
-  }
+.loading-detail {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  min-height: 1.1em;
+}
 
-  @keyframes spin { to { transform: rotate(360deg); } }
+.loading-steps {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.2rem;
+}
 
-  .loading-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  transition: color 0.25s;
+}
+.step.done { color: var(--green); }
+.step.active { color: var(--text); }
 
-  /* Game */
-  #game {
-    display: none;
-    width: 100%;
-    max-width: 680px;
-  }
+.step-icon {
+  font-size: 0.75rem;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
 
-  .score-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.step.active .step-icon { animation: pulse 1s ease-in-out infinite; }
 
-  .score-item {
-    text-align: center;
-  }
+/* Game */
+#game { display: none; width: 100%; max-width: 680px; }
 
-  .score-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.2rem;
-  }
+.score-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
 
-  .score-val {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
+.score-item { text-align: center; }
 
-  .score-val.streak { color: var(--accent); }
-  .score-val.correct { color: var(--green); }
-  .score-val.wrong { color: var(--red); }
+.score-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
 
-  .divider {
-    width: 1px;
-    height: 32px;
-    background: var(--border);
-  }
+.score-val { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+.score-val.streak { color: var(--accent); }
+.score-val.correct { color: var(--green); }
+.score-val.wrong { color: var(--red); }
 
-  .prompt {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 1rem;
-  }
+.divider { width: 1px; height: 32px; background: var(--border); }
 
-  .cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
+.prompt {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 1rem;
+}
 
-  @media (max-width: 500px) {
-    .cards { grid-template-columns: 1fr; }
-  }
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 500px) { .cards { grid-template-columns: 1fr; } }
 
-  .track-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    cursor: pointer;
-    transition: border-color 0.15s, transform 0.12s, background 0.15s;
-    user-select: none;
-    min-height: 160px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+.track-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s, background 0.15s;
+  user-select: none;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.track-card:hover:not(.resolved) {
+  border-color: var(--accent);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.track-card.correct-answer { border-color: var(--green); background: rgba(106,184,122,0.08); }
+.track-card.wrong-answer { border-color: var(--red); background: rgba(224,85,85,0.08); }
+.track-card.resolved { cursor: default; }
 
-  .track-card:hover:not(.resolved) {
-    border-color: var(--accent);
-    background: var(--surface2);
-    transform: translateY(-2px);
-  }
+.track-art {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  background: var(--surface2);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.track-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.track-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
 
-  .track-card.selected { border-color: var(--accent); }
+.track-name { font-weight: 700; font-size: 0.95rem; line-height: 1.3; margin-bottom: 0.3rem; }
+.track-artist { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
 
-  .track-card.correct-answer {
-    border-color: var(--green);
-    background: rgba(106, 184, 122, 0.08);
-  }
+.plays-row { display: flex; align-items: center; gap: 0.4rem; }
+.plays-mask { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; color: var(--muted); letter-spacing: 0.15em; }
+.plays-val { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; color: var(--accent); display: none; }
+.plays-val.revealed { display: inline; }
 
-  .track-card.wrong-answer {
-    border-color: var(--red);
-    background: rgba(224, 85, 85, 0.08);
-  }
+.result-banner {
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.result-banner.show { opacity: 1; transform: translateY(0); }
+.result-banner.win { background: rgba(106,184,122,0.15); color: var(--green); border: 1px solid rgba(106,184,122,0.3); }
+.result-banner.lose { background: rgba(224,85,85,0.1); color: var(--red); border: 1px solid rgba(224,85,85,0.25); }
 
-  .track-card.resolved { cursor: default; }
+.next-btn {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: #1a1200;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s, background 0.15s;
+  pointer-events: none;
+}
+.next-btn.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+.next-btn:hover { background: #f0b45a; }
 
-  .track-art {
-    width: 52px;
-    height: 52px;
-    border-radius: 6px;
-    background: var(--surface2);
-    margin-bottom: 0.75rem;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
+.bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
 
-  .track-art img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+.quit-btn {
+  background: none;
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+.quit-btn:hover { color: var(--text); }
 
-  .track-art-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-  }
+.pool-info { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
 
-  .track-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    line-height: 1.3;
-    margin-bottom: 0.3rem;
-    color: var(--text);
-  }
-
-  .track-artist {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 0.75rem;
-  }
-
-  .plays-row {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  .plays-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .plays-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--accent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .plays-val.hidden-count { opacity: 0; }
-  .plays-val.show-count { opacity: 1; }
-
-  .plays-mask {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-  }
-
-  .result-banner {
-    text-align: center;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-    margin-bottom: 1rem;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.25s, transform 0.25s;
-  }
-
-  .result-banner.show { opacity: 1; transform: translateY(0); }
-  .result-banner.win { background: rgba(106, 184, 122, 0.15); color: var(--green); border: 1px solid rgba(106, 184, 122, 0.3); }
-  .result-banner.lose { background: rgba(224, 85, 85, 0.1); color: var(--red); border: 1px solid rgba(224, 85, 85, 0.25); }
-
-  .next-btn {
-    display: block;
-    width: 100%;
-    background: var(--accent);
-    color: #1a1200;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.25s, transform 0.25s, background 0.15s;
-    pointer-events: none;
-  }
-
-  .next-btn.show { opacity: 1; transform: translateY(0); pointer-events: all; }
-  .next-btn:hover { background: #f0b45a; }
-
-  .bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-  }
-
-  .quit-btn {
-    background: none;
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    cursor: pointer;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    padding: 0;
-  }
-
-  .quit-btn:hover { color: var(--text); }
-
-  .pool-info {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-  }
-
-  /* VS badge */
-  .vs-badge {
-    text-align: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    padding: 0.5rem 0;
-    display: none;
-  }
-
-  @media (max-width: 500px) {
-    .vs-badge { display: block; }
-  }
-
-  /* Vinyl decoration on cards (subtle) */
-  .track-card::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    right: -6px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    opacity: 0.3;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .or-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 10px;
-    pointer-events: none;
-  }
+.or-divider {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -495,12 +404,10 @@
 <div id="setup">
   <div class="panel">
     <div class="error-msg" id="error-msg"></div>
-
     <div class="field">
       <label for="username">Last.fm username</label>
       <input type="text" id="username" placeholder="e.g. rj" autocomplete="off" autocorrect="off" spellcheck="false">
     </div>
-
     <div class="settings-row">
       <div class="field">
         <label for="bucket-size">Percentile range</label>
@@ -509,18 +416,41 @@
       </div>
       <div class="field">
         <label for="min-plays">Min plays</label>
-        <input type="number" id="min-plays" value="10" min="1" max="999">
+        <input type="number" id="min-plays" value="10" min="1" max="9999">
         <div class="hint">ignore tracks with fewer plays</div>
       </div>
     </div>
-
     <button class="btn" id="start-btn">load my tracks →</button>
   </div>
 </div>
 
 <div id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">fetching your scrobbles...</div>
+  <div class="loading-panel">
+    <div class="loading-title">loading your library</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="loading-status" id="loading-status">connecting to last.fm...</div>
+    <div class="loading-detail" id="loading-detail">&nbsp;</div>
+    <div class="loading-steps">
+      <div class="step" id="step-connect">
+        <span class="step-icon">○</span>
+        <span>connect to last.fm</span>
+      </div>
+      <div class="step" id="step-count">
+        <span class="step-icon">○</span>
+        <span id="step-count-label">fetch track count</span>
+      </div>
+      <div class="step" id="step-pages">
+        <span class="step-icon">○</span>
+        <span id="step-pages-label">load all pages</span>
+      </div>
+      <div class="step" id="step-filter">
+        <span class="step-icon">○</span>
+        <span id="step-filter-label">filter &amp; prepare</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="game">
@@ -544,7 +474,7 @@
   <div class="prompt">which have you played more?</div>
 
   <div style="position: relative;">
-    <div class="cards" id="cards-container">
+    <div class="cards">
       <div class="track-card" id="card-a"></div>
       <div class="track-card" id="card-b"></div>
     </div>
@@ -561,109 +491,128 @@
 </div>
 
 <script>
+// JSONP bypasses CORS entirely — last.fm supports it via &callback=
+// No proxy, no server needed. Works on any static host.
 const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
-const LASTFM_BASE = 'https://ws.audioscrobbler.com/2.0/';
-// Last.fm doesn't send CORS headers, so we proxy through corsproxy.io
-// allorigins wraps the response in { contents: "...", status: {...} }
-const PROXY = 'https://api.allorigins.win/get?url=';
+const BASE = 'https://ws.audioscrobbler.com/2.0/';
+let _cbCounter = 0;
 
-let tracks = [];
-let bucketSize = 25;
-let minPlays = 10;
-let scoreCorrect = 0;
-let scoreWrong = 0;
-let streak = 0;
-let resolved = false;
-let currentPair = null;
+function jsonp(params, timeoutMs) {
+  timeoutMs = timeoutMs || 15000;
+  return new Promise(function(resolve, reject) {
+    var cbName = '__lfcb' + (_cbCounter++);
+    var parts = [];
+    var allParams = Object.assign({}, params, { api_key: API_KEY, format: 'json', callback: cbName });
+    for (var k in allParams) {
+      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
+    }
+    var url = BASE + '?' + parts.join('&');
 
-const $ = id => document.getElementById(id);
+    var timer = setTimeout(function() {
+      cleanup();
+      reject(new Error('Request timed out — last.fm may be slow, try again'));
+    }, timeoutMs);
 
-async function fetchAllTopTracks(user) {
-  const perPage = 1000;
-  const target = `${LASTFM_BASE}?method=user.gettoptracks&user=${encodeURIComponent(user)}&api_key=${API_KEY}&format=json&limit=${perPage}&period=overall`;
-  const url = PROXY + encodeURIComponent(target);
-  let res;
-  try {
-    res = await fetch(url);
-  } catch (e) {
-    throw new Error('Network error — proxy may be down. Try again in a moment.');
-  }
-  if (!res.ok) throw new Error(`Proxy error (${res.status})`);
-  const wrapper = await res.json();
-  if (!wrapper.contents) throw new Error('Empty response from proxy');
-  const data = JSON.parse(wrapper.contents);
-  if (data.error) throw new Error(data.message || 'Last.fm error');
-  const toptracks = data.toptracks;
-  if (!toptracks || !toptracks.track) throw new Error('No tracks found for this user');
-  return toptracks.track;
+    window[cbName] = function(data) {
+      cleanup();
+      if (data && data.error) {
+        reject(new Error(data.message || ('last.fm error ' + data.error)));
+      } else {
+        resolve(data);
+      }
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    var script = document.createElement('script');
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('Network error — check your connection'));
+    };
+    script.src = url;
+    document.head.appendChild(script);
+  });
 }
 
-function buildCardHTML(track, side) {
-  const art = track.image && track.image[1] && track.image[1]['#text'];
-  const artEl = art
-    ? `<img src="${art}" alt="" loading="lazy">`
-    : `<div class="track-art-placeholder">♪</div>`;
-  return `
-    <div class="track-art">${artEl}</div>
-    <div>
-      <div class="track-name">${esc(track.name)}</div>
-      <div class="track-artist">${esc(track.artist.name)}</div>
-    </div>
-    <div class="plays-row">
-      <span class="plays-mask" id="mask-${side}">• • •</span>
-      <span class="plays-val" id="plays-${side}">${Number(track.playcount).toLocaleString()}</span>
-    </div>
-  `;
+// State
+var tracks = [];
+var bucketSize = 25;
+var minPlays = 10;
+var scoreCorrect = 0, scoreWrong = 0, streak = 0;
+var resolved = false;
+var currentPair = null;
+
+function $(id) { return document.getElementById(id); }
+
+function setProgress(pct, status, detail) {
+  $('progress-fill').style.width = pct + '%';
+  if (status != null) $('loading-status').textContent = status;
+  if (detail !== undefined) $('loading-detail').textContent = detail || '\u00a0';
+}
+
+function setStep(id, state) {
+  var el = $(id);
+  el.className = 'step' + (state === 'active' ? ' active' : state === 'done' ? ' done' : '');
+  el.querySelector('.step-icon').textContent = state === 'done' ? '✓' : state === 'active' ? '●' : '○';
 }
 
 function esc(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildCardHTML(track, side) {
+  var art = track.image && track.image[1] && track.image[1]['#text'];
+  var artEl = art
+    ? '<img src="' + esc(art) + '" alt="" loading="lazy">'
+    : '<div class="track-art-placeholder">\u266a</div>';
+  return '<div class="track-art">' + artEl + '</div>'
+    + '<div><div class="track-name">' + esc(track.name) + '</div>'
+    + '<div class="track-artist">' + esc(track.artist.name) + '</div></div>'
+    + '<div class="plays-row">'
+    + '<span class="plays-mask" id="mask-' + side + '">\u2022 \u2022 \u2022</span>'
+    + '<span class="plays-val" id="plays-' + side + '">' + Number(track.playcount).toLocaleString() + '</span>'
+    + '</div>';
 }
 
 function pickPair() {
-  const plays = tracks.map(t => t.playcount);
-  const min = Math.min(...plays);
-  const max = Math.max(...plays);
-  const range = max - min || 1;
-  const bucketFrac = bucketSize / 100;
-
-  let attempts = 0;
-  while (attempts < 2000) {
-    attempts++;
-    const i = Math.floor(Math.random() * tracks.length);
-    const j = Math.floor(Math.random() * tracks.length);
-    if (i === j) continue;
-    const a = tracks[i], b = tracks[j];
+  var plays = tracks.map(function(t){ return t.playcount; });
+  var min = Math.min.apply(null, plays);
+  var max = Math.max.apply(null, plays);
+  var range = max - min || 1;
+  var bucketFrac = bucketSize / 100;
+  for (var i = 0; i < 3000; i++) {
+    var ai = Math.floor(Math.random() * tracks.length);
+    var bi = Math.floor(Math.random() * tracks.length);
+    if (ai === bi) continue;
+    var a = tracks[ai], b = tracks[bi];
     if (a.playcount === b.playcount) continue;
-    const diff = Math.abs(a.playcount - b.playcount) / range;
-    if (diff <= bucketFrac) {
-      return [a, b];
-    }
+    if (Math.abs(a.playcount - b.playcount) / range <= bucketFrac) return [a, b];
   }
   return null;
 }
 
 function showPair() {
   resolved = false;
-  const pair = pickPair();
+  var pair = pickPair();
   if (!pair) {
-    $('result-banner').textContent = 'No valid pair found with these settings. Try a wider percentile range.';
+    $('result-banner').textContent = 'No valid pair found — try a wider percentile range.';
     $('result-banner').className = 'result-banner show lose';
     return;
   }
   currentPair = pair;
-  const [a, b] = pair;
-
-  const cardA = $('card-a');
-  const cardB = $('card-b');
-  cardA.className = 'track-card';
-  cardB.className = 'track-card';
-  cardA.innerHTML = buildCardHTML(a, 'a');
-  cardB.innerHTML = buildCardHTML(b, 'b');
-
-  cardA.onclick = () => guess('a');
-  cardB.onclick = () => guess('b');
-
+  var a = pair[0], b = pair[1];
+  $('card-a').className = 'track-card';
+  $('card-b').className = 'track-card';
+  $('card-a').innerHTML = buildCardHTML(a, 'a');
+  $('card-b').innerHTML = buildCardHTML(b, 'b');
+  $('card-a').onclick = function(){ guess('a'); };
+  $('card-b').onclick = function(){ guess('b'); };
   $('result-banner').className = 'result-banner';
   $('next-btn').className = 'next-btn';
 }
@@ -671,88 +620,126 @@ function showPair() {
 function guess(side) {
   if (resolved) return;
   resolved = true;
+  var a = currentPair[0], b = currentPair[1];
+  var winner = a.playcount > b.playcount ? 'a' : 'b';
+  var correct = side === winner;
 
-  const [a, b] = currentPair;
-  const winner = a.playcount > b.playcount ? 'a' : 'b';
-  const correct = side === winner;
-
-  // Reveal counts
-  ['a','b'].forEach(s => {
-    const mask = document.getElementById(`mask-${s}`);
-    const val = document.getElementById(`plays-${s}`);
+  ['a','b'].forEach(function(s) {
+    var mask = document.getElementById('mask-' + s);
+    var val = document.getElementById('plays-' + s);
     if (mask) mask.style.display = 'none';
-    if (val) val.classList.add('show-count');
+    if (val) val.classList.add('revealed');
   });
 
-  const cardA = $('card-a');
-  const cardB = $('card-b');
-  cardA.classList.add('resolved');
-  cardB.classList.add('resolved');
+  $('card-a').classList.add('resolved');
+  $('card-b').classList.add('resolved');
 
   if (correct) {
     scoreCorrect++;
     streak++;
-    document.getElementById(`card-${side}`).classList.add('correct-answer');
-    document.getElementById(`card-${winner === 'a' ? 'b' : 'a'}`).classList.add('wrong-answer');
-    const banner = $('result-banner');
-    banner.textContent = streak > 2 ? `✓ correct! ${streak} in a row 🔥` : '✓ correct!';
-    banner.className = 'result-banner show win';
+    document.getElementById('card-' + side).classList.add('correct-answer');
+    document.getElementById('card-' + (winner === 'a' ? 'b' : 'a')).classList.add('wrong-answer');
+    $('result-banner').textContent = streak > 2 ? '\u2713 correct! ' + streak + ' in a row \uD83D\uDD25' : '\u2713 correct!';
+    $('result-banner').className = 'result-banner show win';
   } else {
     scoreWrong++;
     streak = 0;
-    document.getElementById(`card-${side}`).classList.add('wrong-answer');
-    document.getElementById(`card-${winner}`).classList.add('correct-answer');
-    const banner = $('result-banner');
-    banner.textContent = '✗ not quite';
-    banner.className = 'result-banner show lose';
+    document.getElementById('card-' + side).classList.add('wrong-answer');
+    document.getElementById('card-' + winner).classList.add('correct-answer');
+    $('result-banner').textContent = '\u2717 not quite';
+    $('result-banner').className = 'result-banner show lose';
   }
 
   $('score-correct').textContent = scoreCorrect;
   $('score-wrong').textContent = scoreWrong;
   $('score-streak').textContent = streak;
-
   $('next-btn').className = 'next-btn show';
 }
 
 async function startGame() {
-  const user = $('username').value.trim();
+  var user = $('username').value.trim();
   if (!user) { showError('enter a username first'); return; }
 
-  bucketSize = parseInt($('bucket-size').value) || 25;
-  minPlays = parseInt($('min-plays').value) || 10;
-  bucketSize = Math.max(5, Math.min(100, bucketSize));
-  minPlays = Math.max(1, minPlays);
+  bucketSize = Math.max(5, Math.min(100, parseInt($('bucket-size').value) || 25));
+  minPlays   = Math.max(1, parseInt($('min-plays').value) || 10);
 
   hideError();
   $('setup').style.display = 'none';
   $('loading').style.display = 'block';
 
+  ['step-connect','step-count','step-pages','step-filter'].forEach(function(s){ setStep(s, 'pending'); });
+  $('step-pages-label').textContent = 'load all pages';
+  $('step-filter-label').textContent = 'filter & prepare';
+
   try {
-    $('loading-text').textContent = 'fetching your scrobbles...';
-    const raw = await fetchAllTopTracks(user);
-    $('loading-text').textContent = 'filtering tracks...';
+    // Page 1: connect and discover total
+    setStep('step-connect', 'active');
+    setProgress(5, 'connecting to last.fm...', 'reaching ws.audioscrobbler.com');
 
-    tracks = raw
-      .map(t => ({ ...t, playcount: parseInt(t.playcount) }))
-      .filter(t => t.playcount >= minPlays);
+    var firstPage = await jsonp({ method: 'user.gettoptracks', user: user, limit: 200, page: 1, period: 'overall' });
 
-    if (tracks.length < 2) {
-      throw new Error(`Only ${tracks.length} track(s) with ≥ ${minPlays} plays. Lower the minimum.`);
+    setStep('step-connect', 'done');
+    setStep('step-count', 'active');
+
+    var meta = firstPage.toptracks['@attr'];
+    var totalTracks = parseInt(meta.total);
+    var totalPages  = parseInt(meta.totalPages);
+
+    if (totalTracks === 0) throw new Error('This user has no scrobbles yet.');
+
+    setProgress(15, 'found ' + totalTracks.toLocaleString() + ' tracks', totalPages + ' page' + (totalPages !== 1 ? 's' : '') + ' to load');
+    $('step-count-label').textContent = totalTracks.toLocaleString() + ' tracks found';
+    setStep('step-count', 'done');
+    setStep('step-pages', 'active');
+
+    var allTracks = Array.from(firstPage.toptracks.track || []);
+
+    // Remaining pages
+    for (var page = 2; page <= totalPages; page++) {
+      var pct = 15 + Math.round(((page - 1) / totalPages) * 70);
+      setProgress(pct,
+        'loading page ' + page + ' of ' + totalPages + '...',
+        allTracks.length.toLocaleString() + ' tracks loaded so far'
+      );
+      $('step-pages-label').textContent = 'page ' + page + ' / ' + totalPages + ' loaded';
+
+      var data = await jsonp({ method: 'user.gettoptracks', user: user, limit: 200, page: page, period: 'overall' });
+      var pageTracks = data.toptracks.track || [];
+      allTracks = allTracks.concat(pageTracks);
     }
 
-    scoreCorrect = 0;
-    scoreWrong = 0;
-    streak = 0;
+    setStep('step-pages', 'done');
+    setStep('step-filter', 'active');
+    setProgress(90, 'filtering tracks...', 'min ' + minPlays + ' plays \u00b7 \u00b1' + bucketSize + '% window');
 
-    $('loading').style.display = 'none';
-    $('game').style.display = 'block';
+    tracks = allTracks
+      .map(function(t){ return Object.assign({}, t, { playcount: parseInt(t.playcount) }); })
+      .filter(function(t){ return !isNaN(t.playcount) && t.playcount >= minPlays; });
+
+    if (tracks.length < 2) {
+      throw new Error('Only ' + tracks.length + ' track(s) with \u2265 ' + minPlays + ' plays. Try lowering the minimum.');
+    }
+
+    setProgress(100,
+      'ready! ' + tracks.length.toLocaleString() + ' tracks in pool',
+      allTracks.length.toLocaleString() + ' total, ' + (allTracks.length - tracks.length) + ' below min plays'
+    );
+    $('step-filter-label').textContent = tracks.length.toLocaleString() + ' tracks ready';
+    setStep('step-filter', 'done');
+
+    await new Promise(function(r){ setTimeout(r, 600); });
+
+    scoreCorrect = 0; scoreWrong = 0; streak = 0;
     $('score-correct').textContent = '0';
     $('score-wrong').textContent = '0';
     $('score-streak').textContent = '0';
-    $('pool-info').textContent = `${tracks.length} tracks · ±${bucketSize}% window`;
+    $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks \u00b7 \u00b1' + bucketSize + '% window';
 
+    $('loading').style.display = 'none';
+    $('game').style.display = 'block';
     showPair();
-  } catch (e) {
+
+  } catch(e) {
     $('loading').style.display = 'none';
     $('setup').style.display = 'block';
     showError(e.message || 'something went wrong');
@@ -760,7 +747,7 @@ async function startGame() {
 }
 
 function showError(msg) {
-  const el = $('error-msg');
+  var el = $('error-msg');
   el.textContent = msg;
   el.style.display = 'block';
 }
@@ -770,16 +757,9 @@ function hideError() {
 }
 
 $('start-btn').onclick = startGame;
-
-$('username').addEventListener('keydown', e => {
-  if (e.key === 'Enter') startGame();
-});
-
-$('next-btn').onclick = () => {
-  showPair();
-};
-
-$('quit-btn').onclick = () => {
+$('username').addEventListener('keydown', function(e){ if (e.key === 'Enter') startGame(); });
+$('next-btn').onclick = showPair;
+$('quit-btn').onclick = function() {
   $('game').style.display = 'none';
   $('setup').style.display = 'block';
 };
