@@ -491,51 +491,35 @@ input::placeholder { color: var(--muted); }
 </div>
 
 <script>
-// JSONP bypasses CORS entirely — last.fm supports it via &callback=
-// No proxy, no server needed. Works on any static host.
+// Fetch via corsproxy.io to bypass CORS on Last.fm's API
 const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
 const BASE = 'https://ws.audioscrobbler.com/2.0/';
-let _cbCounter = 0;
+const PROXY = 'https://corsproxy.io/?url=';
 
-function jsonp(params, timeoutMs) {
+async function fetchLFM(params, timeoutMs) {
   timeoutMs = timeoutMs || 15000;
-  return new Promise(function(resolve, reject) {
-    var cbName = '__lfcb' + (_cbCounter++);
-    var parts = [];
-    var allParams = Object.assign({}, params, { api_key: API_KEY, format: 'json', callback: cbName });
-    for (var k in allParams) {
-      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
-    }
-    var url = BASE + '?' + parts.join('&');
+  var parts = [];
+  var allParams = Object.assign({}, params, { api_key: API_KEY, format: 'json' });
+  for (var k in allParams) {
+    parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
+  }
+  var url = PROXY + encodeURIComponent(BASE + '?' + parts.join('&'));
 
-    var timer = setTimeout(function() {
-      cleanup();
-      reject(new Error('Request timed out — last.fm may be slow, try again'));
-    }, timeoutMs);
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, timeoutMs);
 
-    window[cbName] = function(data) {
-      cleanup();
-      if (data && data.error) {
-        reject(new Error(data.message || ('last.fm error ' + data.error)));
-      } else {
-        resolve(data);
-      }
-    };
-
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    var script = document.createElement('script');
-    script.onerror = function() {
-      cleanup();
-      reject(new Error('Network error — check your connection'));
-    };
-    script.src = url;
-    document.head.appendChild(script);
-  });
+  try {
+    var res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — last.fm unreachable');
+    var data = await res.json();
+    if (data && data.error) throw new Error(data.message || ('last.fm error ' + data.error));
+    return data;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Request timed out — last.fm may be slow, try again');
+    throw new Error(e.message || 'Network error — check your connection');
+  }
 }
 
 // State
@@ -676,7 +660,7 @@ async function startGame() {
     setStep('step-connect', 'active');
     setProgress(5, 'connecting to last.fm...', 'reaching ws.audioscrobbler.com');
 
-    var firstPage = await jsonp({ method: 'user.gettoptracks', user: user, limit: 200, page: 1, period: 'overall' });
+    var firstPage = await fetchLFM({ method: 'user.gettoptracks', user: user, limit: 200, page: 1, period: 'overall' });
 
     setStep('step-connect', 'done');
     setStep('step-count', 'active');
@@ -703,7 +687,7 @@ async function startGame() {
       );
       $('step-pages-label').textContent = 'page ' + page + ' / ' + totalPages + ' loaded';
 
-      var data = await jsonp({ method: 'user.gettoptracks', user: user, limit: 200, page: page, period: 'overall' });
+      var data = await fetchLFM({ method: 'user.gettoptracks', user: user, limit: 200, page: page, period: 'overall' });
       var pageTracks = data.toptracks.track || [];
       allTracks = allTracks.concat(pageTracks);
     }
