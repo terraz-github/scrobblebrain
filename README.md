@@ -562,7 +562,9 @@
 
 <script>
 const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
-const BASE = 'https://ws.audioscrobbler.com/2.0/';
+const LASTFM_BASE = 'https://ws.audioscrobbler.com/2.0/';
+// Last.fm doesn't send CORS headers, so we proxy through corsproxy.io
+const PROXY = 'https://corsproxy.io/?url=';
 
 let tracks = [];
 let bucketSize = 25;
@@ -577,13 +579,19 @@ const $ = id => document.getElementById(id);
 
 async function fetchAllTopTracks(user) {
   const perPage = 1000;
-  const url = `${BASE}?method=user.gettoptracks&user=${encodeURIComponent(user)}&api_key=${API_KEY}&format=json&limit=${perPage}&period=overall`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Network error');
+  const target = `${LASTFM_BASE}?method=user.gettoptracks&user=${encodeURIComponent(user)}&api_key=${API_KEY}&format=json&limit=${perPage}&period=overall`;
+  const url = PROXY + encodeURIComponent(target);
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    throw new Error('Network error — the CORS proxy may be down. Try again in a moment.');
+  }
+  if (!res.ok) throw new Error(`Request failed (${res.status})`);
   const data = await res.json();
   if (data.error) throw new Error(data.message || 'Last.fm error');
   const toptracks = data.toptracks;
-  if (!toptracks || !toptracks.track) throw new Error('No tracks found');
+  if (!toptracks || !toptracks.track) throw new Error('No tracks found for this user');
   return toptracks.track;
 }
 
