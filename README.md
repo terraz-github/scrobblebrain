@@ -405,8 +405,13 @@ input::placeholder { color: var(--muted); }
   <div class="panel">
     <div class="error-msg" id="error-msg"></div>
     <div class="field">
-      <label for="username">Last.fm username</label>
-      <input type="text" id="username" placeholder="e.g. rj" autocomplete="off" autocorrect="off" spellcheck="false">
+      <label>lastfmstats.com export (.json)</label>
+      <div id="drop-zone" style="border:2px dashed var(--border);border-radius:8px;padding:2rem 1rem;text-align:center;cursor:pointer;transition:border-color 0.15s;background:var(--surface2);">
+        <div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">drag &amp; drop your JSON file here</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">or click to browse</div>
+      </div>
+      <input type="file" id="json-file" accept=".json" style="display:none">
+      <div class="hint" style="margin-top:0.5rem;">export from lastfmstats.com → ⚙ → Export</div>
     </div>
     <div class="settings-row">
       <div class="field">
@@ -420,7 +425,7 @@ input::placeholder { color: var(--muted); }
         <div class="hint">ignore tracks with fewer plays</div>
       </div>
     </div>
-    <button class="btn" id="start-btn">load my tracks →</button>
+    <button class="btn" id="start-btn" disabled style="opacity:0.4;cursor:not-allowed;">load a json file first</button>
   </div>
 </div>
 
@@ -491,49 +496,22 @@ input::placeholder { color: var(--muted); }
 </div>
 
 <script>
-// JSONP: omit format=json so Last.fm returns a JS callback invocation (not JSON)
-const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
-const BASE = 'https://ws.audioscrobbler.com/2.0/';
-let _cbCounter = 0;
+// Parse scrobble JSON exported from lastfmstats.com and count plays per track
+function parseScrobbleJSON(json) {
+  var data = JSON.parse(json);
+  var scrobbles = data.scrobbles || data;
+  if (!Array.isArray(scrobbles)) throw new Error('Could not find scrobbles array in JSON');
 
-function fetchLFM(params, timeoutMs) {
-  timeoutMs = timeoutMs || 15000;
-  return new Promise(function(resolve, reject) {
-    var cbName = '__lfcb' + (_cbCounter++);
-    var parts = [];
-    var allParams = Object.assign({}, params, { api_key: API_KEY, callback: cbName });
-    for (var k in allParams) {
-      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
-    }
-    var url = BASE + '?' + parts.join('&');
+  var counts = {};
+  var meta = {};
+  scrobbles.forEach(function(s) {
+    var key = s.track + '|||' + s.artist;
+    counts[key] = (counts[key] || 0) + 1;
+    if (!meta[key]) meta[key] = { name: s.track, artist: { name: s.artist }, image: [] };
+  });
 
-    var timer = setTimeout(function() {
-      cleanup();
-      reject(new Error('Request timed out — last.fm may be slow, try again'));
-    }, timeoutMs);
-
-    window[cbName] = function(data) {
-      cleanup();
-      if (data && data.error) {
-        reject(new Error(data.message || ('last.fm error ' + data.error)));
-      } else {
-        resolve(data);
-      }
-    };
-
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script && script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    var script = document.createElement('script');
-    script.onerror = function() {
-      cleanup();
-      reject(new Error('Network error — check your connection or try disabling any adblocker'));
-    };
-    script.src = url;
-    document.head.appendChild(script);
+  return Object.keys(counts).map(function(k) {
+    return Object.assign({}, meta[k], { playcount: counts[k] });
   });
 }
 
@@ -655,9 +633,54 @@ function guess(side) {
   $('next-btn').className = 'next-btn show';
 }
 
-async function startGame() {
-  var user = $('username').value.trim();
-  if (!user) { showError('enter a username first'); return; }
+var loadedJSON = null;
+
+// File picker / drag-drop wiring
+var dropZone = $('drop-zone');
+var fileInput = $('json-file');
+
+function handleFile(file) {
+  if (!file || !file.name.endsWith('.json')) {
+    showError('please select a .json file');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      loadedJSON = e.target.result;
+      // Quick validation
+      var parsed = JSON.parse(loadedJSON);
+      var scrobbles = parsed.scrobbles || parsed;
+      if (!Array.isArray(scrobbles) || scrobbles.length === 0) throw new Error('No scrobbles found');
+      dropZone.style.borderColor = 'var(--green)';
+      dropZone.innerHTML = '<div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--green);">✓ ' + file.name + '</div>'
+        + '<div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + scrobbles.length.toLocaleString() + ' scrobbles loaded</div>';
+      var btn = $('start-btn');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.textContent = 'start game →';
+      hideError();
+    } catch(err) {
+      showError('invalid JSON: ' + (err.message || 'could not parse file'));
+      loadedJSON = null;
+    }
+  };
+  reader.readAsText(file);
+}
+
+dropZone.addEventListener('click', function() { fileInput.click(); });
+fileInput.addEventListener('change', function() { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; });
+dropZone.addEventListener('dragleave', function() { dropZone.style.borderColor = 'var(--border)'; });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.style.borderColor = 'var(--border)';
+  handleFile(e.dataTransfer.files[0]);
+});
+
+function startGame() {
+  if (!loadedJSON) { showError('load a json file first'); return; }
 
   bucketSize = Math.max(5, Math.min(100, parseInt($('bucket-size').value) || 25));
   minPlays   = Math.max(1, parseInt($('min-plays').value) || 10);
@@ -667,76 +690,50 @@ async function startGame() {
   $('loading').style.display = 'block';
 
   ['step-connect','step-count','step-pages','step-filter'].forEach(function(s){ setStep(s, 'pending'); });
-  $('step-pages-label').textContent = 'load all pages';
+  $('step-pages-label').textContent = 'count plays per track';
   $('step-filter-label').textContent = 'filter & prepare';
 
   try {
-    // Page 1: connect and discover total
     setStep('step-connect', 'active');
-    setProgress(5, 'connecting to last.fm...', 'reaching ws.audioscrobbler.com');
+    setProgress(20, 'parsing scrobble data...', '');
 
-    var firstPage = await fetchLFM({ method: 'user.gettoptracks', user: user, limit: 200, page: 1, period: 'overall' });
+    var allTracks = parseScrobbleJSON(loadedJSON);
 
     setStep('step-connect', 'done');
     setStep('step-count', 'active');
-
-    var meta = firstPage.toptracks['@attr'];
-    var totalTracks = parseInt(meta.total);
-    var totalPages  = parseInt(meta.totalPages);
-
-    if (totalTracks === 0) throw new Error('This user has no scrobbles yet.');
-
-    setProgress(15, 'found ' + totalTracks.toLocaleString() + ' tracks', totalPages + ' page' + (totalPages !== 1 ? 's' : '') + ' to load');
-    $('step-count-label').textContent = totalTracks.toLocaleString() + ' tracks found';
+    setProgress(50, 'found ' + allTracks.length.toLocaleString() + ' unique tracks', '');
+    $('step-count-label').textContent = allTracks.length.toLocaleString() + ' unique tracks found';
     setStep('step-count', 'done');
     setStep('step-pages', 'active');
-
-    var allTracks = Array.from(firstPage.toptracks.track || []);
-
-    // Remaining pages
-    for (var page = 2; page <= totalPages; page++) {
-      var pct = 15 + Math.round(((page - 1) / totalPages) * 70);
-      setProgress(pct,
-        'loading page ' + page + ' of ' + totalPages + '...',
-        allTracks.length.toLocaleString() + ' tracks loaded so far'
-      );
-      $('step-pages-label').textContent = 'page ' + page + ' / ' + totalPages + ' loaded';
-
-      var data = await fetchLFM({ method: 'user.gettoptracks', user: user, limit: 200, page: page, period: 'overall' });
-      var pageTracks = data.toptracks.track || [];
-      allTracks = allTracks.concat(pageTracks);
-    }
-
+    setProgress(75, 'counting plays...', '');
+    $('step-pages-label').textContent = 'plays counted';
     setStep('step-pages', 'done');
     setStep('step-filter', 'active');
-    setProgress(90, 'filtering tracks...', 'min ' + minPlays + ' plays \u00b7 \u00b1' + bucketSize + '% window');
+    setProgress(90, 'filtering tracks...', 'min ' + minPlays + ' plays · ±' + bucketSize + '% window');
 
-    tracks = allTracks
-      .map(function(t){ return Object.assign({}, t, { playcount: parseInt(t.playcount) }); })
-      .filter(function(t){ return !isNaN(t.playcount) && t.playcount >= minPlays; });
+    tracks = allTracks.filter(function(t){ return t.playcount >= minPlays; });
 
     if (tracks.length < 2) {
-      throw new Error('Only ' + tracks.length + ' track(s) with \u2265 ' + minPlays + ' plays. Try lowering the minimum.');
+      throw new Error('Only ' + tracks.length + ' track(s) with ≥ ' + minPlays + ' plays. Try lowering the minimum.');
     }
 
     setProgress(100,
       'ready! ' + tracks.length.toLocaleString() + ' tracks in pool',
-      allTracks.length.toLocaleString() + ' total, ' + (allTracks.length - tracks.length) + ' below min plays'
+      allTracks.length + ' total, ' + (allTracks.length - tracks.length) + ' below min plays'
     );
     $('step-filter-label').textContent = tracks.length.toLocaleString() + ' tracks ready';
     setStep('step-filter', 'done');
 
-    await new Promise(function(r){ setTimeout(r, 600); });
-
-    scoreCorrect = 0; scoreWrong = 0; streak = 0;
-    $('score-correct').textContent = '0';
-    $('score-wrong').textContent = '0';
-    $('score-streak').textContent = '0';
-    $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks \u00b7 \u00b1' + bucketSize + '% window';
-
-    $('loading').style.display = 'none';
-    $('game').style.display = 'block';
-    showPair();
+    setTimeout(function() {
+      scoreCorrect = 0; scoreWrong = 0; streak = 0;
+      $('score-correct').textContent = '0';
+      $('score-wrong').textContent = '0';
+      $('score-streak').textContent = '0';
+      $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks · ±' + bucketSize + '% window';
+      $('loading').style.display = 'none';
+      $('game').style.display = 'block';
+      showPair();
+    }, 600);
 
   } catch(e) {
     $('loading').style.display = 'none';
@@ -756,7 +753,6 @@ function hideError() {
 }
 
 $('start-btn').onclick = startGame;
-$('username').addEventListener('keydown', function(e){ if (e.key === 'Enter') startGame(); });
 $('next-btn').onclick = showPair;
 $('quit-btn').onclick = function() {
   $('game').style.display = 'none';
