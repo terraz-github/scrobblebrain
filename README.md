@@ -564,7 +564,8 @@
 const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
 const LASTFM_BASE = 'https://ws.audioscrobbler.com/2.0/';
 // Last.fm doesn't send CORS headers, so we proxy through corsproxy.io
-const PROXY = 'https://corsproxy.io/?url=';
+// allorigins wraps the response in { contents: "...", status: {...} }
+const PROXY = 'https://api.allorigins.win/get?url=';
 
 let tracks = [];
 let bucketSize = 25;
@@ -585,10 +586,12 @@ async function fetchAllTopTracks(user) {
   try {
     res = await fetch(url);
   } catch (e) {
-    throw new Error('Network error — the CORS proxy may be down. Try again in a moment.');
+    throw new Error('Network error — proxy may be down. Try again in a moment.');
   }
-  if (!res.ok) throw new Error(`Request failed (${res.status})`);
-  const data = await res.json();
+  if (!res.ok) throw new Error(`Proxy error (${res.status})`);
+  const wrapper = await res.json();
+  if (!wrapper.contents) throw new Error('Empty response from proxy');
+  const data = JSON.parse(wrapper.contents);
   if (data.error) throw new Error(data.message || 'Last.fm error');
   const toptracks = data.toptracks;
   if (!toptracks || !toptracks.track) throw new Error('No tracks found for this user');
