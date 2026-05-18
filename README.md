@@ -491,35 +491,50 @@ input::placeholder { color: var(--muted); }
 </div>
 
 <script>
-// Fetch via corsproxy.io to bypass CORS on Last.fm's API
+// JSONP: omit format=json so Last.fm returns a JS callback invocation (not JSON)
 const API_KEY = '2f3407ec29f87e67a834702bbbb8c1da';
 const BASE = 'https://ws.audioscrobbler.com/2.0/';
-const PROXY = 'https://corsproxy.io/?url=';
+let _cbCounter = 0;
 
-async function fetchLFM(params, timeoutMs) {
+function fetchLFM(params, timeoutMs) {
   timeoutMs = timeoutMs || 15000;
-  var parts = [];
-  var allParams = Object.assign({}, params, { api_key: API_KEY, format: 'json' });
-  for (var k in allParams) {
-    parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
-  }
-  var url = PROXY + encodeURIComponent(BASE + '?' + parts.join('&'));
+  return new Promise(function(resolve, reject) {
+    var cbName = '__lfcb' + (_cbCounter++);
+    var parts = [];
+    var allParams = Object.assign({}, params, { api_key: API_KEY, callback: cbName });
+    for (var k in allParams) {
+      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]));
+    }
+    var url = BASE + '?' + parts.join('&');
 
-  var controller = new AbortController();
-  var timer = setTimeout(function() { controller.abort(); }, timeoutMs);
+    var timer = setTimeout(function() {
+      cleanup();
+      reject(new Error('Request timed out — last.fm may be slow, try again'));
+    }, timeoutMs);
 
-  try {
-    var res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' — last.fm unreachable');
-    var data = await res.json();
-    if (data && data.error) throw new Error(data.message || ('last.fm error ' + data.error));
-    return data;
-  } catch(e) {
-    clearTimeout(timer);
-    if (e.name === 'AbortError') throw new Error('Request timed out — last.fm may be slow, try again');
-    throw new Error(e.message || 'Network error — check your connection');
-  }
+    window[cbName] = function(data) {
+      cleanup();
+      if (data && data.error) {
+        reject(new Error(data.message || ('last.fm error ' + data.error)));
+      } else {
+        resolve(data);
+      }
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    var script = document.createElement('script');
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('Network error — check your connection or try disabling any adblocker'));
+    };
+    script.src = url;
+    document.head.appendChild(script);
+  });
 }
 
 // State
