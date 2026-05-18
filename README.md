@@ -141,11 +141,7 @@ input::placeholder { color: var(--muted); }
 }
 
 /* Loading */
-#loading {
-  display: none;
-  width: 100%;
-  max-width: 480px;
-}
+#loading { display: none; width: 100%; max-width: 480px; }
 
 .loading-panel {
   background: var(--surface);
@@ -272,54 +268,131 @@ input::placeholder { color: var(--muted); }
 }
 @media (max-width: 500px) { .cards { grid-template-columns: 1fr; } }
 
+/* Big art card */
 .track-card {
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: var(--r);
-  padding: 1.25rem;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.12s, background 0.15s;
+  transition: border-color 0.15s, transform 0.12s;
   user-select: none;
-  min-height: 160px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 .track-card:hover:not(.resolved) {
   border-color: var(--accent);
-  background: var(--surface2);
   transform: translateY(-2px);
 }
-.track-card.correct-answer { border-color: var(--green); background: rgba(106,184,122,0.08); }
-.track-card.wrong-answer { border-color: var(--red); background: rgba(224,85,85,0.08); }
+.track-card.correct-answer { border-color: var(--green); }
+.track-card.wrong-answer { border-color: var(--red); }
 .track-card.resolved { cursor: default; }
 
-.track-art {
-  width: 52px;
-  height: 52px;
-  border-radius: 6px;
+/* Album art — full width square */
+.track-art-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
   background: var(--surface2);
-  margin-bottom: 0.75rem;
   overflow: hidden;
+  position: relative;
   flex-shrink: 0;
 }
-.track-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.track-art-placeholder {
+.track-art-wrap img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.track-art-wrap img.loaded { opacity: 1; }
+
+.track-art-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+.track-art-placeholder .ph-note { font-size: 2.5rem; opacity: 0.4; }
+.track-art-placeholder .ph-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+
+/* Colored overlay on guess */
+.art-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 3.5rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.track-card.correct-answer .art-overlay {
+  background: rgba(106,184,122,0.3);
+  opacity: 1;
+}
+.track-card.wrong-answer .art-overlay {
+  background: rgba(224,85,85,0.3);
+  opacity: 1;
 }
 
-.track-name { font-weight: 700; font-size: 0.95rem; line-height: 1.3; margin-bottom: 0.3rem; }
-.track-artist { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
+/* Card info strip */
+.track-info {
+  padding: 0.85rem 1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
 
-.plays-row { display: flex; align-items: center; gap: 0.4rem; }
-.plays-mask { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; color: var(--muted); letter-spacing: 0.15em; }
-.plays-val { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; color: var(--accent); display: none; }
+.track-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-artist {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plays-row { display: flex; align-items: baseline; gap: 0.3rem; }
+.plays-mask {
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+}
+.plays-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--accent);
+  display: none;
+}
 .plays-val.revealed { display: inline; }
+.plays-unit {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  display: none;
+}
+.plays-unit.revealed { display: inline; }
 
 .result-banner {
   text-align: center;
@@ -357,7 +430,12 @@ input::placeholder { color: var(--muted); }
 .next-btn.show { opacity: 1; transform: translateY(0); pointer-events: all; }
 .next-btn:hover { background: #f0b45a; }
 
-.bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
 
 .quit-btn {
   background: none;
@@ -435,24 +513,24 @@ input::placeholder { color: var(--muted); }
     <div class="progress-bar-wrap">
       <div class="progress-bar-fill" id="progress-fill"></div>
     </div>
-    <div class="loading-status" id="loading-status">connecting to last.fm...</div>
+    <div class="loading-status" id="loading-status">parsing data…</div>
     <div class="loading-detail" id="loading-detail">&nbsp;</div>
     <div class="loading-steps">
-      <div class="step" id="step-connect">
+      <div class="step" id="step-parse">
         <span class="step-icon">○</span>
-        <span>connect to last.fm</span>
+        <span id="step-parse-label">parse scrobble data</span>
       </div>
       <div class="step" id="step-count">
         <span class="step-icon">○</span>
-        <span id="step-count-label">fetch track count</span>
-      </div>
-      <div class="step" id="step-pages">
-        <span class="step-icon">○</span>
-        <span id="step-pages-label">load all pages</span>
+        <span id="step-count-label">count unique tracks</span>
       </div>
       <div class="step" id="step-filter">
         <span class="step-icon">○</span>
-        <span id="step-filter-label">filter &amp; prepare</span>
+        <span id="step-filter-label">filter &amp; prepare pool</span>
+      </div>
+      <div class="step" id="step-art">
+        <span class="step-icon">○</span>
+        <span id="step-art-label">fetch album art</span>
       </div>
     </div>
   </div>
@@ -496,84 +574,204 @@ input::placeholder { color: var(--muted); }
 </div>
 
 <script>
-// Parse scrobble JSON exported from lastfmstats.com and count plays per track
+// ── iTunes Search API artwork cache ────────────────────────────────────────
+var artCache = {};
+var artInFlight = {};
+
+function fetchArtwork(trackName, artistName) {
+  var key = trackName + '|||' + artistName;
+  if (artCache.hasOwnProperty(key)) return Promise.resolve(artCache[key]);
+  if (artInFlight[key]) return artInFlight[key];
+
+  var query = encodeURIComponent(artistName + ' ' + trackName);
+  var url = 'https://itunes.apple.com/search?term=' + query + '&entity=song&limit=5&media=music';
+
+  var p = fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var result = null;
+      if (data.results && data.results.length) {
+        // prefer exact artist name match
+        var hit = data.results.find(function(r){
+          return r.artistName && r.artistName.toLowerCase() === artistName.toLowerCase();
+        }) || data.results[0];
+        if (hit && hit.artworkUrl100) {
+          result = hit.artworkUrl100.replace('100x100bb', '600x600bb');
+        }
+      }
+      artCache[key] = result;
+      delete artInFlight[key];
+      return result;
+    })
+    .catch(function(){
+      artCache[key] = null;
+      delete artInFlight[key];
+      return null;
+    });
+
+  artInFlight[key] = p;
+  return p;
+}
+
+// Prefetch a batch with concurrency limit
+function prefetchArt(list, onProgress) {
+  var concurrency = 6;
+  var idx = 0, done = 0, total = list.length;
+  return new Promise(function(resolve) {
+    if (!total) { resolve(); return; }
+    function next() {
+      if (idx >= total) return;
+      var t = list[idx++];
+      var key = t.name + '|||' + t.artist.name;
+      if (artCache.hasOwnProperty(key)) {
+        done++;
+        if (onProgress) onProgress(done, total);
+        if (done >= total) resolve();
+        next();
+        return;
+      }
+      fetchArtwork(t.name, t.artist.name).then(function(){
+        done++;
+        if (onProgress) onProgress(done, total);
+        if (done >= total) resolve();
+        next();
+      });
+    }
+    for (var i = 0; i < Math.min(concurrency, total); i++) next();
+  });
+}
+
+// ── JSON parser ────────────────────────────────────────────────────────────
 function parseScrobbleJSON(json) {
   var data = JSON.parse(json);
   var scrobbles = data.scrobbles || data;
   if (!Array.isArray(scrobbles)) throw new Error('Could not find scrobbles array in JSON');
 
-  var counts = {};
-  var meta = {};
+  var counts = {}, meta = {};
   scrobbles.forEach(function(s) {
     var key = s.track + '|||' + s.artist;
     counts[key] = (counts[key] || 0) + 1;
-    if (!meta[key]) meta[key] = { name: s.track, artist: { name: s.artist }, image: [] };
+    if (!meta[key]) meta[key] = { name: s.track, artist: { name: s.artist }, album: s.album || '' };
   });
 
-  return Object.keys(counts).map(function(k) {
+  return Object.keys(counts).map(function(k){
     return Object.assign({}, meta[k], { playcount: counts[k] });
   });
 }
 
-// State
+// ── State ──────────────────────────────────────────────────────────────────
 var tracks = [];
-var bucketSize = 25;
-var minPlays = 10;
+var bucketSize = 25, minPlays = 10;
 var scoreCorrect = 0, scoreWrong = 0, streak = 0;
-var resolved = false;
-var currentPair = null;
+var resolved = false, currentPair = null, launched = false;
 
-function $(id) { return document.getElementById(id); }
+function $(id){ return document.getElementById(id); }
 
 function setProgress(pct, status, detail) {
   $('progress-fill').style.width = pct + '%';
   if (status != null) $('loading-status').textContent = status;
   if (detail !== undefined) $('loading-detail').textContent = detail || '\u00a0';
 }
-
 function setStep(id, state) {
   var el = $(id);
   el.className = 'step' + (state === 'active' ? ' active' : state === 'done' ? ' done' : '');
   el.querySelector('.step-icon').textContent = state === 'done' ? '✓' : state === 'active' ? '●' : '○';
 }
-
 function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── Card builder ───────────────────────────────────────────────────────────
 function buildCardHTML(track, side) {
-  var art = track.image && track.image[1] && track.image[1]['#text'];
-  var artEl = art
-    ? '<img src="' + esc(art) + '" alt="" loading="lazy">'
-    : '<div class="track-art-placeholder">\u266a</div>';
-  return '<div class="track-art">' + artEl + '</div>'
-    + '<div><div class="track-name">' + esc(track.name) + '</div>'
-    + '<div class="track-artist">' + esc(track.artist.name) + '</div></div>'
-    + '<div class="plays-row">'
-    + '<span class="plays-mask" id="mask-' + side + '">\u2022 \u2022 \u2022</span>'
-    + '<span class="plays-val" id="plays-' + side + '">' + Number(track.playcount).toLocaleString() + '</span>'
-    + '</div>';
+  var key = track.name + '|||' + track.artist.name;
+  var artUrl = artCache[key] || null;
+
+  var artContent = artUrl
+    ? '<img src="' + esc(artUrl) + '" alt="" id="art-img-' + side + '">'
+    : '<div class="track-art-placeholder" id="art-ph-' + side + '"><div class="ph-note">♪</div><div class="ph-text">no art found</div></div>';
+
+  return '<div class="track-art-wrap" id="art-wrap-' + side + '">'
+       + artContent
+       + '<div class="art-overlay" id="art-overlay-' + side + '"></div>'
+       + '</div>'
+       + '<div class="track-info">'
+       + '<div class="track-name">' + esc(track.name) + '</div>'
+       + '<div class="track-artist">' + esc(track.artist.name) + '</div>'
+       + '<div class="plays-row">'
+       + '<span class="plays-mask" id="mask-' + side + '">• • •</span>'
+       + '<span class="plays-val" id="plays-' + side + '">' + Number(track.playcount).toLocaleString() + '</span>'
+       + '<span class="plays-unit" id="plays-unit-' + side + '"> plays</span>'
+       + '</div>'
+       + '</div>';
 }
 
+// After render: attach onload to the image so it fades in, and fetch if missing
+function wireCard(track, side) {
+  var img = $('art-img-' + side);
+  if (img) {
+    if (img.complete) {
+      img.classList.add('loaded');
+    } else {
+      img.onload = function(){ img.classList.add('loaded'); };
+      img.onerror = function(){
+        // replace with placeholder on error
+        var wrap = $('art-wrap-' + side);
+        if (wrap) {
+          img.remove();
+          var ph = document.createElement('div');
+          ph.className = 'track-art-placeholder';
+          ph.id = 'art-ph-' + side;
+          ph.innerHTML = '<div class="ph-note">♪</div><div class="ph-text">no art found</div>';
+          wrap.insertBefore(ph, wrap.firstChild);
+        }
+      };
+    }
+    return;
+  }
+  // No image yet — fetch on demand
+  var key = track.name + '|||' + track.artist.name;
+  if (artCache.hasOwnProperty(key)) return;
+  fetchArtwork(track.name, track.artist.name).then(function(url) {
+    var wrap = $('art-wrap-' + side);
+    if (!wrap) return;
+    var ph = $('art-ph-' + side);
+    if (ph) ph.remove();
+    if (url) {
+      var newImg = document.createElement('img');
+      newImg.alt = '';
+      newImg.onload = function(){ newImg.classList.add('loaded'); };
+      newImg.src = url;
+      var overlay = $('art-overlay-' + side);
+      wrap.insertBefore(newImg, overlay);
+    } else {
+      var newPh = document.createElement('div');
+      newPh.className = 'track-art-placeholder';
+      newPh.innerHTML = '<div class="ph-note">♪</div><div class="ph-text">no art found</div>';
+      var overlay2 = $('art-overlay-' + side);
+      wrap.insertBefore(newPh, overlay2);
+    }
+  });
+}
+
+// ── Pair picker ────────────────────────────────────────────────────────────
 function pickPair() {
   var plays = tracks.map(function(t){ return t.playcount; });
   var min = Math.min.apply(null, plays);
   var max = Math.max.apply(null, plays);
   var range = max - min || 1;
-  var bucketFrac = bucketSize / 100;
+  var bf = bucketSize / 100;
   for (var i = 0; i < 3000; i++) {
     var ai = Math.floor(Math.random() * tracks.length);
     var bi = Math.floor(Math.random() * tracks.length);
     if (ai === bi) continue;
     var a = tracks[ai], b = tracks[bi];
     if (a.playcount === b.playcount) continue;
-    if (Math.abs(a.playcount - b.playcount) / range <= bucketFrac) return [a, b];
+    if (Math.abs(a.playcount - b.playcount) / range <= bf) return [a, b];
   }
   return null;
 }
 
+// ── Show pair ──────────────────────────────────────────────────────────────
 function showPair() {
   resolved = false;
   var pair = pickPair();
@@ -588,12 +786,15 @@ function showPair() {
   $('card-b').className = 'track-card';
   $('card-a').innerHTML = buildCardHTML(a, 'a');
   $('card-b').innerHTML = buildCardHTML(b, 'b');
+  wireCard(a, 'a');
+  wireCard(b, 'b');
   $('card-a').onclick = function(){ guess('a'); };
   $('card-b').onclick = function(){ guess('b'); };
   $('result-banner').className = 'result-banner';
   $('next-btn').className = 'next-btn';
 }
 
+// ── Guess ──────────────────────────────────────────────────────────────────
 function guess(side) {
   if (resolved) return;
   resolved = true;
@@ -601,29 +802,31 @@ function guess(side) {
   var winner = a.playcount > b.playcount ? 'a' : 'b';
   var correct = side === winner;
 
-  ['a','b'].forEach(function(s) {
-    var mask = document.getElementById('mask-' + s);
-    var val = document.getElementById('plays-' + s);
+  ['a','b'].forEach(function(s){
+    var mask = $('mask-' + s), val = $('plays-' + s), unit = $('plays-unit-' + s);
     if (mask) mask.style.display = 'none';
     if (val) val.classList.add('revealed');
+    if (unit) unit.classList.add('revealed');
   });
 
   $('card-a').classList.add('resolved');
   $('card-b').classList.add('resolved');
 
   if (correct) {
-    scoreCorrect++;
-    streak++;
-    document.getElementById('card-' + side).classList.add('correct-answer');
-    document.getElementById('card-' + (winner === 'a' ? 'b' : 'a')).classList.add('wrong-answer');
-    $('result-banner').textContent = streak > 2 ? '\u2713 correct! ' + streak + ' in a row \uD83D\uDD25' : '\u2713 correct!';
+    scoreCorrect++; streak++;
+    $('card-' + side).classList.add('correct-answer');
+    $('card-' + (winner === 'a' ? 'b' : 'a')).classList.add('wrong-answer');
+    $('art-overlay-' + side).textContent = '✓';
+    $('art-overlay-' + (winner === 'a' ? 'b' : 'a')).textContent = '✗';
+    $('result-banner').textContent = streak > 2 ? '✓ correct! ' + streak + ' in a row 🔥' : '✓ correct!';
     $('result-banner').className = 'result-banner show win';
   } else {
-    scoreWrong++;
-    streak = 0;
-    document.getElementById('card-' + side).classList.add('wrong-answer');
-    document.getElementById('card-' + winner).classList.add('correct-answer');
-    $('result-banner').textContent = '\u2717 not quite';
+    scoreWrong++; streak = 0;
+    $('card-' + side).classList.add('wrong-answer');
+    $('card-' + winner).classList.add('correct-answer');
+    $('art-overlay-' + side).textContent = '✗';
+    $('art-overlay-' + winner).textContent = '✓';
+    $('result-banner').textContent = '✗ not quite';
     $('result-banner').className = 'result-banner show lose';
   }
 
@@ -633,22 +836,16 @@ function guess(side) {
   $('next-btn').className = 'next-btn show';
 }
 
+// ── File handling ──────────────────────────────────────────────────────────
 var loadedJSON = null;
-
-// File picker / drag-drop wiring
-var dropZone = $('drop-zone');
-var fileInput = $('json-file');
+var dropZone = $('drop-zone'), fileInput = $('json-file');
 
 function handleFile(file) {
-  if (!file || !file.name.endsWith('.json')) {
-    showError('please select a .json file');
-    return;
-  }
+  if (!file || !file.name.endsWith('.json')) { showError('please select a .json file'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
       loadedJSON = e.target.result;
-      // Quick validation
       var parsed = JSON.parse(loadedJSON);
       var scrobbles = parsed.scrobbles || parsed;
       if (!Array.isArray(scrobbles) || scrobbles.length === 0) throw new Error('No scrobbles found');
@@ -656,84 +853,76 @@ function handleFile(file) {
       dropZone.innerHTML = '<div style="font-family:monospace;font-size:0.8rem;color:var(--green);">✓ ' + file.name + '</div>'
         + '<div style="font-family:monospace;font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + scrobbles.length.toLocaleString() + ' scrobbles loaded</div>';
       var btn = $('start-btn');
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
+      btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
       btn.textContent = 'start game →';
       hideError();
     } catch(err) {
-      showError('invalid JSON: ' + (err.message || 'could not parse file'));
+      showError('invalid JSON: ' + (err.message || 'could not parse'));
       loadedJSON = null;
     }
   };
   reader.readAsText(file);
 }
 
-dropZone.addEventListener('click', function() { fileInput.click(); });
-fileInput.addEventListener('change', function() { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
-dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; });
-dropZone.addEventListener('dragleave', function() { dropZone.style.borderColor = 'var(--border)'; });
-dropZone.addEventListener('drop', function(e) {
-  e.preventDefault();
-  dropZone.style.borderColor = 'var(--border)';
+dropZone.addEventListener('click', function(){ fileInput.click(); });
+fileInput.addEventListener('change', function(){ if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+dropZone.addEventListener('dragover', function(e){ e.preventDefault(); dropZone.style.borderColor='var(--accent)'; });
+dropZone.addEventListener('dragleave', function(){ dropZone.style.borderColor='var(--border)'; });
+dropZone.addEventListener('drop', function(e){
+  e.preventDefault(); dropZone.style.borderColor='var(--border)';
   handleFile(e.dataTransfer.files[0]);
 });
 
+// ── Start game ─────────────────────────────────────────────────────────────
 function startGame() {
   if (!loadedJSON) { showError('load a json file first'); return; }
-
   bucketSize = Math.max(5, Math.min(100, parseInt($('bucket-size').value) || 25));
   minPlays   = Math.max(1, parseInt($('min-plays').value) || 10);
-
+  launched = false;
   hideError();
   $('setup').style.display = 'none';
   $('loading').style.display = 'block';
-
-  ['step-connect','step-count','step-pages','step-filter'].forEach(function(s){ setStep(s, 'pending'); });
-  $('step-pages-label').textContent = 'count plays per track';
-  $('step-filter-label').textContent = 'filter & prepare';
+  ['step-parse','step-count','step-filter','step-art'].forEach(function(s){ setStep(s,'pending'); });
 
   try {
-    setStep('step-connect', 'active');
-    setProgress(20, 'parsing scrobble data...', '');
-
+    setStep('step-parse','active');
+    setProgress(15, 'parsing scrobble data…', '');
     var allTracks = parseScrobbleJSON(loadedJSON);
 
-    setStep('step-connect', 'done');
-    setStep('step-count', 'active');
-    setProgress(50, 'found ' + allTracks.length.toLocaleString() + ' unique tracks', '');
+    setStep('step-parse','done'); setStep('step-count','active');
     $('step-count-label').textContent = allTracks.length.toLocaleString() + ' unique tracks found';
-    setStep('step-count', 'done');
-    setStep('step-pages', 'active');
-    setProgress(75, 'counting plays...', '');
-    $('step-pages-label').textContent = 'plays counted';
-    setStep('step-pages', 'done');
-    setStep('step-filter', 'active');
-    setProgress(90, 'filtering tracks...', 'min ' + minPlays + ' plays · ±' + bucketSize + '% window');
+    setProgress(35, 'found ' + allTracks.length.toLocaleString() + ' unique tracks', '');
+    setStep('step-count','done'); setStep('step-filter','active');
+    setProgress(50, 'filtering tracks…', 'min ' + minPlays + ' plays · ±' + bucketSize + '% window');
 
     tracks = allTracks.filter(function(t){ return t.playcount >= minPlays; });
+    if (tracks.length < 2) throw new Error('Only ' + tracks.length + ' track(s) with ≥' + minPlays + ' plays. Lower the minimum.');
 
-    if (tracks.length < 2) {
-      throw new Error('Only ' + tracks.length + ' track(s) with ≥ ' + minPlays + ' plays. Try lowering the minimum.');
-    }
+    $('step-filter-label').textContent = tracks.length.toLocaleString() + ' tracks in pool';
+    setStep('step-filter','done'); setStep('step-art','active');
+    setProgress(60, 'fetching album art…', 'querying iTunes Search API');
 
-    setProgress(100,
-      'ready! ' + tracks.length.toLocaleString() + ' tracks in pool',
-      allTracks.length + ' total, ' + (allTracks.length - tracks.length) + ' below min plays'
-    );
-    $('step-filter-label').textContent = tracks.length.toLocaleString() + ' tracks ready';
-    setStep('step-filter', 'done');
+    // Prefetch for top 150 tracks by playcount
+    var artBatch = tracks.slice().sort(function(a,b){ return b.playcount - a.playcount; }).slice(0, 150);
 
-    setTimeout(function() {
-      scoreCorrect = 0; scoreWrong = 0; streak = 0;
-      $('score-correct').textContent = '0';
-      $('score-wrong').textContent = '0';
-      $('score-streak').textContent = '0';
-      $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks · ±' + bucketSize + '% window';
-      $('loading').style.display = 'none';
-      $('game').style.display = 'block';
-      showPair();
-    }, 600);
+    // Safety valve: launch anyway after 2.5s
+    var safetyTimer = setTimeout(function(){
+      if (!launched) {
+        $('step-art-label').textContent = 'art loading in background…';
+        doLaunch();
+      }
+    }, 2500);
+
+    prefetchArt(artBatch, function(done, total){
+      var pct = 60 + Math.round((done / total) * 36);
+      setProgress(pct, 'fetching album art… (' + done + '/' + total + ')', '');
+    }).then(function(){
+      clearTimeout(safetyTimer);
+      $('step-art-label').textContent = 'album art ready';
+      setStep('step-art','done');
+      setProgress(100, 'ready! ' + tracks.length.toLocaleString() + ' tracks', '');
+      setTimeout(doLaunch, 400);
+    });
 
   } catch(e) {
     $('loading').style.display = 'none';
@@ -742,19 +931,25 @@ function startGame() {
   }
 }
 
-function showError(msg) {
-  var el = $('error-msg');
-  el.textContent = msg;
-  el.style.display = 'block';
+function doLaunch() {
+  if (launched) return;
+  launched = true;
+  scoreCorrect = 0; scoreWrong = 0; streak = 0;
+  $('score-correct').textContent = '0';
+  $('score-wrong').textContent = '0';
+  $('score-streak').textContent = '0';
+  $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks · ±' + bucketSize + '% window';
+  $('loading').style.display = 'none';
+  $('game').style.display = 'block';
+  showPair();
 }
 
-function hideError() {
-  $('error-msg').style.display = 'none';
-}
+function showError(msg){ var el=$('error-msg'); el.textContent=msg; el.style.display='block'; }
+function hideError(){ $('error-msg').style.display='none'; }
 
 $('start-btn').onclick = startGame;
 $('next-btn').onclick = showPair;
-$('quit-btn').onclick = function() {
+$('quit-btn').onclick = function(){
   $('game').style.display = 'none';
   $('setup').style.display = 'block';
 };
