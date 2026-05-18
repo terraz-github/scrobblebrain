@@ -211,13 +211,7 @@ input::placeholder { color: var(--muted); }
 }
 .step.done { color: var(--green); }
 .step.active { color: var(--text); }
-
-.step-icon {
-  font-size: 0.75rem;
-  width: 14px;
-  text-align: center;
-  flex-shrink: 0;
-}
+.step-icon { font-size: 0.75rem; width: 14px; text-align: center; flex-shrink: 0; }
 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .step.active .step-icon { animation: pulse 1s ease-in-out infinite; }
@@ -288,7 +282,7 @@ input::placeholder { color: var(--muted); }
 .track-card.wrong-answer { border-color: var(--red); }
 .track-card.resolved { cursor: default; }
 
-/* Album art — full width square */
+/* Full-width square art area */
 .track-art-wrap {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -297,15 +291,32 @@ input::placeholder { color: var(--muted); }
   position: relative;
   flex-shrink: 0;
 }
+
+/* Shimmer while loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.track-art-wrap.loading-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
 .track-art-wrap img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   opacity: 0;
-  transition: opacity 0.35s;
+  transition: opacity 0.4s;
 }
-.track-art-wrap img.loaded { opacity: 1; }
+.track-art-wrap img.ready { opacity: 1; }
 
 .track-art-placeholder {
   position: absolute;
@@ -314,18 +325,12 @@ input::placeholder { color: var(--muted); }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  color: var(--muted);
+  gap: 0.5rem;
 }
-.track-art-placeholder .ph-note { font-size: 2.5rem; opacity: 0.4; }
-.track-art-placeholder .ph-text {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  opacity: 0.5;
-}
+.ph-note { font-size: 2.5rem; opacity: 0.2; }
+.ph-text { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); opacity: 0.6; letter-spacing: 0.06em; }
 
-/* Colored overlay on guess */
+/* Result overlay on art */
 .art-overlay {
   position: absolute;
   inset: 0;
@@ -334,26 +339,19 @@ input::placeholder { color: var(--muted); }
   justify-content: center;
   font-size: 3.5rem;
   opacity: 0;
-  transition: opacity 0.25s;
+  transition: opacity 0.2s;
   pointer-events: none;
 }
-.track-card.correct-answer .art-overlay {
-  background: rgba(106,184,122,0.3);
-  opacity: 1;
-}
-.track-card.wrong-answer .art-overlay {
-  background: rgba(224,85,85,0.3);
-  opacity: 1;
-}
+.track-card.correct-answer .art-overlay { background: rgba(106,184,122,0.28); opacity: 1; }
+.track-card.wrong-answer .art-overlay { background: rgba(224,85,85,0.28); opacity: 1; }
 
-/* Card info strip */
+/* Info strip below art */
 .track-info {
   padding: 0.85rem 1rem 0.9rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.3rem;
 }
-
 .track-name {
   font-weight: 700;
   font-size: 0.9rem;
@@ -369,29 +367,13 @@ input::placeholder { color: var(--muted); }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 0.35rem;
 }
-
 .plays-row { display: flex; align-items: baseline; gap: 0.3rem; }
-.plays-mask {
-  font-family: 'DM Mono', monospace;
-  font-size: 1rem;
-  color: var(--muted);
-  letter-spacing: 0.2em;
-}
-.plays-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--accent);
-  display: none;
-}
+.plays-mask { font-family: 'DM Mono', monospace; font-size: 1rem; color: var(--muted); letter-spacing: 0.2em; }
+.plays-val { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 500; color: var(--accent); display: none; }
 .plays-val.revealed { display: inline; }
-.plays-unit {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--muted);
-  display: none;
-}
+.plays-unit { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); display: none; }
 .plays-unit.revealed { display: inline; }
 
 .result-banner {
@@ -430,45 +412,27 @@ input::placeholder { color: var(--muted); }
 .next-btn.show { opacity: 1; transform: translateY(0); pointer-events: all; }
 .next-btn:hover { background: #f0b45a; }
 
-.bottom-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-}
+.bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
 
 .quit-btn {
-  background: none;
-  border: none;
+  background: none; border: none;
   font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--muted);
-  cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  padding: 0;
+  font-size: 0.7rem; color: var(--muted);
+  cursor: pointer; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: underline;
+  text-underline-offset: 3px; padding: 0;
 }
 .quit-btn:hover { color: var(--text); }
-
 .pool-info { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
 
 .or-divider {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  position: absolute; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 0.15em;
-  pointer-events: none;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 10px;
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  color: var(--muted); letter-spacing: 0.15em; pointer-events: none;
 }
 </style>
 </head>
@@ -510,48 +474,24 @@ input::placeholder { color: var(--muted); }
 <div id="loading">
   <div class="loading-panel">
     <div class="loading-title">loading your library</div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="progress-fill"></div>
-    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
     <div class="loading-status" id="loading-status">parsing data…</div>
     <div class="loading-detail" id="loading-detail">&nbsp;</div>
     <div class="loading-steps">
-      <div class="step" id="step-parse">
-        <span class="step-icon">○</span>
-        <span id="step-parse-label">parse scrobble data</span>
-      </div>
-      <div class="step" id="step-count">
-        <span class="step-icon">○</span>
-        <span id="step-count-label">count unique tracks</span>
-      </div>
-      <div class="step" id="step-filter">
-        <span class="step-icon">○</span>
-        <span id="step-filter-label">filter &amp; prepare pool</span>
-      </div>
-      <div class="step" id="step-art">
-        <span class="step-icon">○</span>
-        <span id="step-art-label">fetch album art</span>
-      </div>
+      <div class="step" id="step-parse"><span class="step-icon">○</span><span id="step-parse-label">parse scrobble data</span></div>
+      <div class="step" id="step-count"><span class="step-icon">○</span><span id="step-count-label">count unique tracks</span></div>
+      <div class="step" id="step-filter"><span class="step-icon">○</span><span id="step-filter-label">filter &amp; prepare pool</span></div>
     </div>
   </div>
 </div>
 
 <div id="game">
   <div class="score-bar">
-    <div class="score-item">
-      <div class="score-label">correct</div>
-      <div class="score-val correct" id="score-correct">0</div>
-    </div>
+    <div class="score-item"><div class="score-label">correct</div><div class="score-val correct" id="score-correct">0</div></div>
     <div class="divider"></div>
-    <div class="score-item">
-      <div class="score-label">streak</div>
-      <div class="score-val streak" id="score-streak">0</div>
-    </div>
+    <div class="score-item"><div class="score-label">streak</div><div class="score-val streak" id="score-streak">0</div></div>
     <div class="divider"></div>
-    <div class="score-item">
-      <div class="score-label">wrong</div>
-      <div class="score-val wrong" id="score-wrong">0</div>
-    </div>
+    <div class="score-item"><div class="score-label">wrong</div><div class="score-val wrong" id="score-wrong">0</div></div>
   </div>
 
   <div class="prompt">which have you played more?</div>
@@ -574,71 +514,63 @@ input::placeholder { color: var(--muted); }
 </div>
 
 <script>
-// ── iTunes Search API artwork cache ────────────────────────────────────────
-var artCache = {};
-var artInFlight = {};
+// ── Rate-limited iTunes art fetcher ────────────────────────────────────────
+// iTunes Search API: ~20 req/min → 1 request every 3.5s to stay safe.
+// We only ever fetch the 2 tracks currently on screen (on demand), then
+// lookahead-fetch the next pair while the user is reading the result.
+// Cache persists across rounds so each track is fetched at most once.
 
-function fetchArtwork(trackName, artistName) {
-  var key = trackName + '|||' + artistName;
+var artCache = {};   // key → url string | null
+var artQueue = [];   // [{key, track, artist, resolve}]
+var artTimer = null;
+var RATE_MS = 3500;  // ms between requests
+
+function artKey(name, artist) { return name + '|||' + artist; }
+
+function fetchArt(name, artist) {
+  var key = artKey(name, artist);
   if (artCache.hasOwnProperty(key)) return Promise.resolve(artCache[key]);
-  if (artInFlight[key]) return artInFlight[key];
 
-  var query = encodeURIComponent(artistName + ' ' + trackName);
-  var url = 'https://itunes.apple.com/search?term=' + query + '&entity=song&limit=5&media=music';
-
-  var p = fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var result = null;
-      if (data.results && data.results.length) {
-        // prefer exact artist name match
-        var hit = data.results.find(function(r){
-          return r.artistName && r.artistName.toLowerCase() === artistName.toLowerCase();
-        }) || data.results[0];
-        if (hit && hit.artworkUrl100) {
-          result = hit.artworkUrl100.replace('100x100bb', '600x600bb');
-        }
-      }
-      artCache[key] = result;
-      delete artInFlight[key];
-      return result;
-    })
-    .catch(function(){
-      artCache[key] = null;
-      delete artInFlight[key];
-      return null;
-    });
-
-  artInFlight[key] = p;
-  return p;
+  return new Promise(function(resolve) {
+    artQueue.push({ key: key, name: name, artist: artist, resolve: resolve });
+    if (!artTimer) drainQueue();
+  });
 }
 
-// Prefetch a batch with concurrency limit
-function prefetchArt(list, onProgress) {
-  var concurrency = 6;
-  var idx = 0, done = 0, total = list.length;
-  return new Promise(function(resolve) {
-    if (!total) { resolve(); return; }
-    function next() {
-      if (idx >= total) return;
-      var t = list[idx++];
-      var key = t.name + '|||' + t.artist.name;
-      if (artCache.hasOwnProperty(key)) {
-        done++;
-        if (onProgress) onProgress(done, total);
-        if (done >= total) resolve();
-        next();
-        return;
+function drainQueue() {
+  if (!artQueue.length) { artTimer = null; return; }
+  var item = artQueue.shift();
+
+  // already resolved by a parallel call
+  if (artCache.hasOwnProperty(item.key)) {
+    item.resolve(artCache[item.key]);
+    artTimer = setTimeout(drainQueue, 0);
+    return;
+  }
+
+  var q = encodeURIComponent(item.artist + ' ' + item.name);
+  fetch('https://itunes.apple.com/search?term=' + q + '&entity=song&limit=5&media=music')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var url = null;
+      if (data.results && data.results.length) {
+        var hit = data.results.find(function(r) {
+          return r.artistName && r.artistName.toLowerCase() === item.artist.toLowerCase();
+        }) || data.results[0];
+        if (hit && hit.artworkUrl100) {
+          url = hit.artworkUrl100.replace('100x100bb', '600x600bb');
+        }
       }
-      fetchArtwork(t.name, t.artist.name).then(function(){
-        done++;
-        if (onProgress) onProgress(done, total);
-        if (done >= total) resolve();
-        next();
-      });
-    }
-    for (var i = 0; i < Math.min(concurrency, total); i++) next();
-  });
+      artCache[item.key] = url;
+      item.resolve(url);
+    })
+    .catch(function() {
+      artCache[item.key] = null;
+      item.resolve(null);
+    })
+    .finally(function() {
+      artTimer = setTimeout(drainQueue, RATE_MS);
+    });
 }
 
 // ── JSON parser ────────────────────────────────────────────────────────────
@@ -649,12 +581,11 @@ function parseScrobbleJSON(json) {
 
   var counts = {}, meta = {};
   scrobbles.forEach(function(s) {
-    var key = s.track + '|||' + s.artist;
-    counts[key] = (counts[key] || 0) + 1;
-    if (!meta[key]) meta[key] = { name: s.track, artist: { name: s.artist }, album: s.album || '' };
+    var k = s.track + '|||' + s.artist;
+    counts[k] = (counts[k] || 0) + 1;
+    if (!meta[k]) meta[k] = { name: s.track, artist: { name: s.artist } };
   });
-
-  return Object.keys(counts).map(function(k){
+  return Object.keys(counts).map(function(k) {
     return Object.assign({}, meta[k], { playcount: counts[k] });
   });
 }
@@ -663,9 +594,10 @@ function parseScrobbleJSON(json) {
 var tracks = [];
 var bucketSize = 25, minPlays = 10;
 var scoreCorrect = 0, scoreWrong = 0, streak = 0;
-var resolved = false, currentPair = null, launched = false;
+var resolved = false, currentPair = null;
+var nextPair = null; // lookahead
 
-function $(id){ return document.getElementById(id); }
+function $(id) { return document.getElementById(id); }
 
 function setProgress(pct, status, detail) {
   $('progress-fill').style.width = pct + '%';
@@ -681,18 +613,23 @@ function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Card builder ───────────────────────────────────────────────────────────
-function buildCardHTML(track, side) {
-  var key = track.name + '|||' + track.artist.name;
-  var artUrl = artCache[key] || null;
+// ── Card rendering ─────────────────────────────────────────────────────────
+function buildCard(track, side) {
+  var key = artKey(track.name, track.artist.name);
+  var cached = artCache.hasOwnProperty(key) ? artCache[key] : undefined;
 
-  var artContent = artUrl
-    ? '<img src="' + esc(artUrl) + '" alt="" id="art-img-' + side + '">'
-    : '<div class="track-art-placeholder" id="art-ph-' + side + '"><div class="ph-note">♪</div><div class="ph-text">no art found</div></div>';
+  var artInner;
+  if (cached) {
+    artInner = cached
+      ? '<img src="' + esc(cached) + '" id="art-img-' + side + '" alt="">'
+      : placeholder();
+  } else {
+    artInner = placeholder();
+  }
 
-  return '<div class="track-art-wrap" id="art-wrap-' + side + '">'
-       + artContent
-       + '<div class="art-overlay" id="art-overlay-' + side + '"></div>'
+  return '<div class="track-art-wrap' + (cached === undefined ? ' loading-art' : '') + '" id="art-wrap-' + side + '">'
+       + artInner
+       + '<div class="art-overlay" id="art-ol-' + side + '"></div>'
        + '</div>'
        + '<div class="track-info">'
        + '<div class="track-name">' + esc(track.name) + '</div>'
@@ -700,66 +637,53 @@ function buildCardHTML(track, side) {
        + '<div class="plays-row">'
        + '<span class="plays-mask" id="mask-' + side + '">• • •</span>'
        + '<span class="plays-val" id="plays-' + side + '">' + Number(track.playcount).toLocaleString() + '</span>'
-       + '<span class="plays-unit" id="plays-unit-' + side + '"> plays</span>'
-       + '</div>'
-       + '</div>';
+       + '<span class="plays-unit" id="plays-u-' + side + '"> plays</span>'
+       + '</div></div>';
 }
 
-// After render: attach onload to the image so it fades in, and fetch if missing
-function wireCard(track, side) {
-  var img = $('art-img-' + side);
-  if (img) {
-    if (img.complete) {
-      img.classList.add('loaded');
-    } else {
-      img.onload = function(){ img.classList.add('loaded'); };
-      img.onerror = function(){
-        // replace with placeholder on error
-        var wrap = $('art-wrap-' + side);
-        if (wrap) {
-          img.remove();
-          var ph = document.createElement('div');
-          ph.className = 'track-art-placeholder';
-          ph.id = 'art-ph-' + side;
-          ph.innerHTML = '<div class="ph-note">♪</div><div class="ph-text">no art found</div>';
-          wrap.insertBefore(ph, wrap.firstChild);
-        }
-      };
-    }
-    return;
+function placeholder() {
+  return '<div class="track-art-placeholder"><div class="ph-note">♪</div><div class="ph-text">loading art…</div></div>';
+}
+
+function noArtPlaceholder() {
+  return '<div class="track-art-placeholder"><div class="ph-note">♪</div><div class="ph-text">no art found</div></div>';
+}
+
+// Attach art to a rendered card (called after fetch resolves)
+function injectArt(side, url) {
+  var wrap = $('art-wrap-' + side);
+  if (!wrap) return; // card gone
+  wrap.classList.remove('loading-art');
+  // clear existing content (placeholder or old img) before overlay
+  var overlay = $('art-ol-' + side);
+  while (wrap.firstChild !== overlay) wrap.removeChild(wrap.firstChild);
+
+  if (url) {
+    var img = document.createElement('img');
+    img.alt = '';
+    img.id = 'art-img-' + side;
+    img.onload = function() { img.classList.add('ready'); };
+    img.onerror = function() { img.parentNode && img.parentNode.insertBefore(noArtEl(), img); img.remove(); };
+    img.src = url;
+    wrap.insertBefore(img, overlay);
+  } else {
+    var ph = document.createElement('div');
+    ph.innerHTML = noArtPlaceholder();
+    wrap.insertBefore(ph.firstChild, overlay);
   }
-  // No image yet — fetch on demand
-  var key = track.name + '|||' + track.artist.name;
-  if (artCache.hasOwnProperty(key)) return;
-  fetchArtwork(track.name, track.artist.name).then(function(url) {
-    var wrap = $('art-wrap-' + side);
-    if (!wrap) return;
-    var ph = $('art-ph-' + side);
-    if (ph) ph.remove();
-    if (url) {
-      var newImg = document.createElement('img');
-      newImg.alt = '';
-      newImg.onload = function(){ newImg.classList.add('loaded'); };
-      newImg.src = url;
-      var overlay = $('art-overlay-' + side);
-      wrap.insertBefore(newImg, overlay);
-    } else {
-      var newPh = document.createElement('div');
-      newPh.className = 'track-art-placeholder';
-      newPh.innerHTML = '<div class="ph-note">♪</div><div class="ph-text">no art found</div>';
-      var overlay2 = $('art-overlay-' + side);
-      wrap.insertBefore(newPh, overlay2);
-    }
-  });
+}
+
+function noArtEl() {
+  var d = document.createElement('div');
+  d.innerHTML = noArtPlaceholder();
+  return d.firstChild;
 }
 
 // ── Pair picker ────────────────────────────────────────────────────────────
 function pickPair() {
-  var plays = tracks.map(function(t){ return t.playcount; });
-  var min = Math.min.apply(null, plays);
-  var max = Math.max.apply(null, plays);
-  var range = max - min || 1;
-  var bf = bucketSize / 100;
+  var plays = tracks.map(function(t) { return t.playcount; });
+  var min = Math.min.apply(null, plays), max = Math.max.apply(null, plays);
+  var range = max - min || 1, bf = bucketSize / 100;
   for (var i = 0; i < 3000; i++) {
     var ai = Math.floor(Math.random() * tracks.length);
     var bi = Math.floor(Math.random() * tracks.length);
@@ -774,24 +698,41 @@ function pickPair() {
 // ── Show pair ──────────────────────────────────────────────────────────────
 function showPair() {
   resolved = false;
-  var pair = pickPair();
+  var pair = nextPair || pickPair();
+  nextPair = null;
+
   if (!pair) {
     $('result-banner').textContent = 'No valid pair found — try a wider percentile range.';
     $('result-banner').className = 'result-banner show lose';
     return;
   }
   currentPair = pair;
-  var a = pair[0], b = pair[1];
+
   $('card-a').className = 'track-card';
   $('card-b').className = 'track-card';
-  $('card-a').innerHTML = buildCardHTML(a, 'a');
-  $('card-b').innerHTML = buildCardHTML(b, 'b');
-  wireCard(a, 'a');
-  wireCard(b, 'b');
-  $('card-a').onclick = function(){ guess('a'); };
-  $('card-b').onclick = function(){ guess('b'); };
+  $('card-a').innerHTML = buildCard(pair[0], 'a');
+  $('card-b').innerHTML = buildCard(pair[1], 'b');
+  $('card-a').onclick = function() { guess('a'); };
+  $('card-b').onclick = function() { guess('b'); };
   $('result-banner').className = 'result-banner';
   $('next-btn').className = 'next-btn';
+
+  // Wire up existing cached images
+  ['a','b'].forEach(function(s, i) {
+    var t = pair[i];
+    var key = artKey(t.name, t.artist.name);
+    if (artCache.hasOwnProperty(key)) {
+      // already cached — wire the img fade-in
+      var img = $('art-img-' + s);
+      if (img) {
+        if (img.complete && img.naturalWidth) { img.classList.add('ready'); }
+        else { img.onload = function() { img.classList.add('ready'); }; }
+      }
+    } else {
+      // fetch on demand
+      fetchArt(t.name, t.artist.name).then(function(url) { injectArt(s, url); });
+    }
+  });
 }
 
 // ── Guess ──────────────────────────────────────────────────────────────────
@@ -801,9 +742,10 @@ function guess(side) {
   var a = currentPair[0], b = currentPair[1];
   var winner = a.playcount > b.playcount ? 'a' : 'b';
   var correct = side === winner;
+  var loser = winner === 'a' ? 'b' : 'a';
 
-  ['a','b'].forEach(function(s){
-    var mask = $('mask-' + s), val = $('plays-' + s), unit = $('plays-unit-' + s);
+  ['a','b'].forEach(function(s) {
+    var mask = $('mask-' + s), val = $('plays-' + s), unit = $('plays-u-' + s);
     if (mask) mask.style.display = 'none';
     if (val) val.classList.add('revealed');
     if (unit) unit.classList.add('revealed');
@@ -815,17 +757,17 @@ function guess(side) {
   if (correct) {
     scoreCorrect++; streak++;
     $('card-' + side).classList.add('correct-answer');
-    $('card-' + (winner === 'a' ? 'b' : 'a')).classList.add('wrong-answer');
-    $('art-overlay-' + side).textContent = '✓';
-    $('art-overlay-' + (winner === 'a' ? 'b' : 'a')).textContent = '✗';
+    $('card-' + loser).classList.add('wrong-answer');
+    $('art-ol-' + side).textContent = '✓';
+    $('art-ol-' + loser).textContent = '✗';
     $('result-banner').textContent = streak > 2 ? '✓ correct! ' + streak + ' in a row 🔥' : '✓ correct!';
     $('result-banner').className = 'result-banner show win';
   } else {
     scoreWrong++; streak = 0;
     $('card-' + side).classList.add('wrong-answer');
     $('card-' + winner).classList.add('correct-answer');
-    $('art-overlay-' + side).textContent = '✗';
-    $('art-overlay-' + winner).textContent = '✓';
+    $('art-ol-' + side).textContent = '✗';
+    $('art-ol-' + winner).textContent = '✓';
     $('result-banner').textContent = '✗ not quite';
     $('result-banner').className = 'result-banner show lose';
   }
@@ -834,6 +776,16 @@ function guess(side) {
   $('score-wrong').textContent = scoreWrong;
   $('score-streak').textContent = streak;
   $('next-btn').className = 'next-btn show';
+
+  // Lookahead: pick and pre-fetch art for the next pair while user reads result
+  var lp = pickPair();
+  if (lp) {
+    nextPair = lp;
+    lp.forEach(function(t) {
+      var key = artKey(t.name, t.artist.name);
+      if (!artCache.hasOwnProperty(key)) fetchArt(t.name, t.artist.name);
+    });
+  }
 }
 
 // ── File handling ──────────────────────────────────────────────────────────
@@ -848,7 +800,7 @@ function handleFile(file) {
       loadedJSON = e.target.result;
       var parsed = JSON.parse(loadedJSON);
       var scrobbles = parsed.scrobbles || parsed;
-      if (!Array.isArray(scrobbles) || scrobbles.length === 0) throw new Error('No scrobbles found');
+      if (!Array.isArray(scrobbles) || !scrobbles.length) throw new Error('No scrobbles found');
       dropZone.style.borderColor = 'var(--green)';
       dropZone.innerHTML = '<div style="font-family:monospace;font-size:0.8rem;color:var(--green);">✓ ' + file.name + '</div>'
         + '<div style="font-family:monospace;font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + scrobbles.length.toLocaleString() + ' scrobbles loaded</div>';
@@ -864,11 +816,11 @@ function handleFile(file) {
   reader.readAsText(file);
 }
 
-dropZone.addEventListener('click', function(){ fileInput.click(); });
-fileInput.addEventListener('change', function(){ if (fileInput.files[0]) handleFile(fileInput.files[0]); });
-dropZone.addEventListener('dragover', function(e){ e.preventDefault(); dropZone.style.borderColor='var(--accent)'; });
-dropZone.addEventListener('dragleave', function(){ dropZone.style.borderColor='var(--border)'; });
-dropZone.addEventListener('drop', function(e){
+dropZone.addEventListener('click', function() { fileInput.click(); });
+fileInput.addEventListener('change', function() { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor='var(--accent)'; });
+dropZone.addEventListener('dragleave', function() { dropZone.style.borderColor='var(--border)'; });
+dropZone.addEventListener('drop', function(e) {
   e.preventDefault(); dropZone.style.borderColor='var(--border)';
   handleFile(e.dataTransfer.files[0]);
 });
@@ -878,51 +830,40 @@ function startGame() {
   if (!loadedJSON) { showError('load a json file first'); return; }
   bucketSize = Math.max(5, Math.min(100, parseInt($('bucket-size').value) || 25));
   minPlays   = Math.max(1, parseInt($('min-plays').value) || 10);
-  launched = false;
   hideError();
   $('setup').style.display = 'none';
   $('loading').style.display = 'block';
-  ['step-parse','step-count','step-filter','step-art'].forEach(function(s){ setStep(s,'pending'); });
+  ['step-parse','step-count','step-filter'].forEach(function(s) { setStep(s,'pending'); });
 
   try {
     setStep('step-parse','active');
-    setProgress(15, 'parsing scrobble data…', '');
+    setProgress(20, 'parsing scrobble data…', '');
     var allTracks = parseScrobbleJSON(loadedJSON);
 
     setStep('step-parse','done'); setStep('step-count','active');
     $('step-count-label').textContent = allTracks.length.toLocaleString() + ' unique tracks found';
-    setProgress(35, 'found ' + allTracks.length.toLocaleString() + ' unique tracks', '');
-    setStep('step-count','done'); setStep('step-filter','active');
-    setProgress(50, 'filtering tracks…', 'min ' + minPlays + ' plays · ±' + bucketSize + '% window');
+    setProgress(55, 'found ' + allTracks.length.toLocaleString() + ' unique tracks', '');
 
-    tracks = allTracks.filter(function(t){ return t.playcount >= minPlays; });
-    if (tracks.length < 2) throw new Error('Only ' + tracks.length + ' track(s) with ≥' + minPlays + ' plays. Lower the minimum.');
+    setStep('step-count','done'); setStep('step-filter','active');
+    setProgress(75, 'filtering tracks…', 'min ' + minPlays + ' plays · ±' + bucketSize + '% window');
+
+    tracks = allTracks.filter(function(t) { return t.playcount >= minPlays; });
+    if (tracks.length < 2) throw new Error('Only ' + tracks.length + ' track(s) with ≥' + minPlays + ' plays. Try lowering the minimum.');
 
     $('step-filter-label').textContent = tracks.length.toLocaleString() + ' tracks in pool';
-    setStep('step-filter','done'); setStep('step-art','active');
-    setProgress(60, 'fetching album art…', 'querying iTunes Search API');
+    setStep('step-filter','done');
+    setProgress(100, 'ready! ' + tracks.length.toLocaleString() + ' tracks', '');
 
-    // Prefetch for top 150 tracks by playcount
-    var artBatch = tracks.slice().sort(function(a,b){ return b.playcount - a.playcount; }).slice(0, 150);
-
-    // Safety valve: launch anyway after 2.5s
-    var safetyTimer = setTimeout(function(){
-      if (!launched) {
-        $('step-art-label').textContent = 'art loading in background…';
-        doLaunch();
-      }
-    }, 2500);
-
-    prefetchArt(artBatch, function(done, total){
-      var pct = 60 + Math.round((done / total) * 36);
-      setProgress(pct, 'fetching album art… (' + done + '/' + total + ')', '');
-    }).then(function(){
-      clearTimeout(safetyTimer);
-      $('step-art-label').textContent = 'album art ready';
-      setStep('step-art','done');
-      setProgress(100, 'ready! ' + tracks.length.toLocaleString() + ' tracks', '');
-      setTimeout(doLaunch, 400);
-    });
+    setTimeout(function() {
+      scoreCorrect = 0; scoreWrong = 0; streak = 0; nextPair = null;
+      $('score-correct').textContent = '0';
+      $('score-wrong').textContent = '0';
+      $('score-streak').textContent = '0';
+      $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks · ±' + bucketSize + '% window';
+      $('loading').style.display = 'none';
+      $('game').style.display = 'block';
+      showPair();
+    }, 500);
 
   } catch(e) {
     $('loading').style.display = 'none';
@@ -931,28 +872,12 @@ function startGame() {
   }
 }
 
-function doLaunch() {
-  if (launched) return;
-  launched = true;
-  scoreCorrect = 0; scoreWrong = 0; streak = 0;
-  $('score-correct').textContent = '0';
-  $('score-wrong').textContent = '0';
-  $('score-streak').textContent = '0';
-  $('pool-info').textContent = tracks.length.toLocaleString() + ' tracks · ±' + bucketSize + '% window';
-  $('loading').style.display = 'none';
-  $('game').style.display = 'block';
-  showPair();
-}
-
-function showError(msg){ var el=$('error-msg'); el.textContent=msg; el.style.display='block'; }
-function hideError(){ $('error-msg').style.display='none'; }
+function showError(msg) { var el=$('error-msg'); el.textContent=msg; el.style.display='block'; }
+function hideError() { $('error-msg').style.display='none'; }
 
 $('start-btn').onclick = startGame;
 $('next-btn').onclick = showPair;
-$('quit-btn').onclick = function(){
-  $('game').style.display = 'none';
-  $('setup').style.display = 'block';
-};
+$('quit-btn').onclick = function() { $('game').style.display='none'; $('setup').style.display='block'; };
 </script>
 </body>
 </html>
