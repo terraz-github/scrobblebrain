@@ -653,8 +653,8 @@ function handleFile(file) {
       var scrobbles = parsed.scrobbles || parsed;
       if (!Array.isArray(scrobbles) || scrobbles.length === 0) throw new Error('No scrobbles found');
       dropZone.style.borderColor = 'var(--green)';
-      dropZone.innerHTML = '<div style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--green);">✓ ' + file.name + '</div>'
-        + '<div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + scrobbles.length.toLocaleString() + ' scrobbles loaded</div>';
+      dropZone.innerHTML = '<div style="font-family:monospace;font-size:0.8rem;color:var(--green);">✓ ' + file.name + '</div>'
+        + '<div style="font-family:monospace;font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + scrobbles.length.toLocaleString() + ' scrobbles loaded</div>';
       var btn = $('start-btn');
       btn.disabled = false;
       btn.style.opacity = '1';
